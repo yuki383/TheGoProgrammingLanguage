@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"unicode"
-	"unicode/utf8"
 )
 
 func main() {
@@ -14,8 +13,7 @@ func main() {
 }
 
 func run() int {
-	counts := make(map[rune]int)
-	var utflen [utf8.UTFMax + 1]int
+	var letter, mark, num int
 	invalid := 0
 
 	in := bufio.NewReader(os.Stdin)
@@ -35,26 +33,32 @@ func run() int {
 			continue
 		}
 
-		counts[r]++
-		utflen[n]++
-	}
-
-	fmt.Printf("rune\tcount\n")
-	for c, n := range counts {
-		fmt.Printf("%q\t%d\n", c, n)
-	}
-
-	fmt.Print("\nlen\tcount\n")
-	for i, n := range utflen {
-		if i > 0 {
-			fmt.Printf("%d\t %d\n", i, n)
+		if unicode.IsLetter(r) {
+			letter++
+		}
+		if unicode.IsMark(r) {
+			mark++
+		}
+		if unicode.IsNumber(r) {
+			num++
 		}
 	}
 
-	if invalid > 0 {
-		fmt.Printf("\n%d invalud UTF-8 characters\n", invalid)
-	}
+	fmt.Printf("rune\tletter\n")
+	fmt.Printf("letter\t%d\n",letter)
+
+	fmt.Printf("rune\tmark\n")
+	fmt.Printf("mark\t%d\n",mark)
+
+	fmt.Printf("rune\tnumber\n")
+	fmt.Printf("number\t%d\n",num)
 
 	return 0
 
+}
+
+func checkRune(r rune, judge func(r rune) bool, counter map[rune]int) {
+	if judge(r) {
+		counter[r]++
+	}
 }
